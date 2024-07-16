@@ -19,8 +19,7 @@
 
 typedef struct cache_element cache_element;
 
-struct cache_element
-{
+struct cache_element{
    char* data;
    int len;
    char* url;
@@ -44,5 +43,61 @@ int cache_size;
 
 int main (int argc, char* argv[]) {
     int client_socketid, client_len;
-    struct sockaddr server_addr, client_addr;
+    struct sockaddr_in server_addr, client_addr;
+    sem_init(&semaphore,0,MAX_CLIENT);
+
+    pthread_mutex_init(&lock,NULL);
+    if (argv == 2){
+        port = atoi(argv[1]);
+    } else{
+        printf("Too few arguments\n");
+        exit(1);
+    }
+    
+    printf("Starting proxy server at port: %d\n",port);
+
+    // we will 1 Main proxy server here where every user will request
+    // then after we will create a thread for every user ;
+    proxy_socketId = socket(AF_INET,SOCK_STREAM,0);
+    if (proxy_socketId<0){
+        perror("failed to create a socketid");
+    }
+
+    int reuse = 1;
+    if (setsockopt(proxy_socketId,SOL_SOCKET,SO_REUSEADDR, (const char*)&reuse,sizeof(reuse))<0){
+        perror("setSockOpt failded\n");
+    }
+    
+    bzero((char*)&server_addr,sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+
+    if(bind(proxy_socketId,(struct sockaddr*)&server_addr,sizeof(server_addr)<0)){
+        perror("Port is not available\n");
+        exit(1);
+    }
+
+    printf("binding on port: %d ",port);
+    int listen_status = listen(proxy_socketId,MAX_CLIENT);
+    if (listen_status<0){
+        perror("Error in listening");
+    }
+
+    int i =0;
+    int Connected_socketId[MAX_CLIENT];
+    while(1){
+        bzero((char*)&client_addr,sizeof(client_addr));
+        client_len = sizeof(client_addr);
+        client_socketid = accept(proxy_socketId,(struct sockaddr*)&client_addr,(socklen_t*)&client_len);
+        if (client_socketid < 0) {
+            perror("Not able to connect\n");
+            exit(1);
+        } else {
+            Connected_socketId[i] = client_socketid;
+
+            struct sockaddr_in * client_pt = (struct sockadrr_in *)&client_addr;
+        }
+    }
+
 }
