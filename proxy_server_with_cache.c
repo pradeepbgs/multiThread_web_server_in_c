@@ -101,9 +101,7 @@ int main (int argc, char* argv[]) {
             char str[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &ip_addr, str, INET_ADDRSTRLEN);
             printf("Client is connected with port number %d and ip address is %s\n",
-              ntohs(client_addr.sin_port),str);
-            
-            
+            ntohs(client_addr.sin_port),str);
     }
 
 }
