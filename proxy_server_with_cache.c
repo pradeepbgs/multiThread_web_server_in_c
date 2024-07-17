@@ -95,9 +95,15 @@ int main (int argc, char* argv[]) {
             exit(1);
         } else {
             Connected_socketId[i] = client_socketid;
-
-            struct sockaddr_in * client_pt = (struct sockadrr_in *)&client_addr;
         }
+            struct sockaddr_in * client_pt = (struct sockadrr_in *)&client_addr;
+            struct in_addr ip_addr = client_pt->sin_addr;
+            char str[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &ip_addr, str, INET_ADDRSTRLEN);
+            printf("Client is connected with port number %d and ip address is %s\n",
+              ntohs(client_addr.sin_port),str);
+            
+            
     }
 
 }
